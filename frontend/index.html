@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="BioMentor AI — AI-Powered Adaptive Biotechnology Learning Platform with Grounded Course Generation">
+    <title>BioMentor AI — Adaptive Learning Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://unpkg.com/vis-network@9.1.6/standalone/umd/vis-network.min.js"></script>
+</head>
+
+<body>
+    <!-- Ambient animated background -->
+    <div class="ambient-bg" aria-hidden="true">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <!-- ═══════════════ LOGIN PAGE ═══════════════ -->
+    <div id="login-page" class="page login-page">
+        <div class="login-container">
+            <div class="login-card glass">
+                <div class="login-brand">
+                    <div class="login-logo">🧬</div>
+                    <h1 class="login-title">BioMentor AI</h1>
+                    <p class="login-subtitle">AI-Powered Adaptive Learning Platform</p>
+                </div>
+
+                <div id="login-error" class="alert alert-error hidden"></div>
+
+                <form class="login-form" onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label for="login-username">Username</label>
+                        <div class="input-wrapper">
+                            <span class="input-icon">👤</span>
+                            <input type="text" id="login-username" class="form-input" placeholder="Enter your username"
+                                required autocomplete="username">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Password</label>
+                        <div class="input-wrapper">
+                            <span class="input-icon">🔒</span>
+                            <input type="password" id="login-password" class="form-input"
+                                placeholder="Enter your password" required autocomplete="current-password">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-lg btn-block" id="login-btn">
+                        <span class="btn-text">Sign In</span>
+                        <span class="btn-loader hidden"></span>
+                    </button>
+                </form>
+
+                <p class="login-footer">
+                    New here? <a href="#" onclick="handleRegister(); return false;">Create an account</a>
+                </p>
+
+                <div class="demo-credentials">
+                    <span class="demo-label">Demo Accounts</span>
+                    <div class="demo-items">
+                        <span class="demo-item"><strong>Admin:</strong> admin / admin123</span>
+                        <span class="demo-item"><strong>Student:</strong> student / student123</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════ MAIN APPLICATION ═══════════════ -->
+    <div id="app-page" class="page hidden">
+
+        <!-- Navigation -->
+        <nav class="navbar" role="navigation">
+            <div class="navbar-inner">
+                <a class="navbar-brand" onclick="showView('dashboard')" role="button" tabindex="0">
+                    <span class="brand-icon">🧬</span>
+                    <span class="brand-text">BioMentor AI</span>
+                </a>
+                <div class="nav-center" id="nav-tabs"></div>
+                <div class="nav-right">
+                    <span class="user-badge" id="nav-username"></span>
+                    <button class="btn btn-ghost btn-sm" onclick="handleLogout()">Logout</button>
+                </div>
+                <button class="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Toggle menu">☰</button>
+            </div>
+            <div class="mobile-menu hidden" id="mobile-menu"></div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+
+            <!-- ═══ DASHBOARD ═══ -->
+            <section id="view-dashboard" class="view">
+                <div class="section-header">
+                    <div>
+                        <h1 class="page-title">Dashboard</h1>
+                        <p class="page-subtitle">Your learning journey at a glance</p>
+                    </div>
+                </div>
+
+                <div class="stats-row" id="stats-grid"></div>
+
+                <div class="section-header" style="margin-top:32px;">
+                    <h2 class="section-title">📚 Available Courses</h2>
+                    <button class="btn btn-outline btn-sm" onclick="showView('analytics')" id="analytics-btn"
+                        style="display:none;">
+                        📊 Analytics
+                    </button>
+                </div>
+
+                <div id="courses-container">
+                    <div class="skeleton-grid">
+                        <div class="skeleton-card"></div>
+                        <div class="skeleton-card"></div>
+                        <div class="skeleton-card"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ═══ LESSON VIEW ═══ -->
+            <section id="view-lesson" class="view hidden">
+                <div class="lesson-topbar">
+                    <button class="btn btn-ghost btn-sm" onclick="showView('dashboard')">← Back</button>
+                    <div class="lesson-actions-bar">
+                        <button class="btn btn-accent btn-sm" onclick="startQuiz()">🧪 Take Quiz</button>
+                    </div>
+                </div>
+
+                <div class="lesson-hero">
+                    <h1 id="lesson-title" class="lesson-hero-title"></h1>
+                    <div id="lesson-mastery" class="lesson-hero-meta"></div>
+                </div>
+
+                <div id="lesson-content" class="lesson-body">
+                    <div class="loader-block">
+                        <div class="spinner"></div>
+                        <p>Loading course content...</p>
+                    </div>
+                </div>
+
+                <!-- ═══ INLINE AI TUTOR CHAT ═══ -->
+                <div class="inline-chat-section glass" id="inline-chat-section">
+                    <div class="inline-chat-header">
+                        <div class="inline-chat-title">
+                            <span class="inline-chat-icon">🤖</span>
+                            <div>
+                                <h3>AI Tutor</h3>
+                                <span class="inline-chat-status">Ask me anything about this course</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-ghost btn-sm" id="chat-toggle-btn" onclick="toggleInlineChat()">
+                            <span id="chat-toggle-text">▼ Collapse</span>
+                        </button>
+                    </div>
+                    <div class="inline-chat-body" id="inline-chat-body">
+                        <div class="inline-chat-messages" id="chat-messages">
+                            <div class="chat-bubble assistant">
+                                👋 Hi! I'm your AI tutor. Ask me anything about this course — I'll adapt to your mastery
+                                level!
+                            </div>
+                        </div>
+                        <div class="inline-chat-input-bar">
+                            <input type="text" id="chat-input" class="form-input"
+                                placeholder="Ask a question about this course..."
+                                onkeypress="if(event.key==='Enter')sendChat()" autocomplete="off">
+                            <button class="btn btn-primary" onclick="sendChat()" id="chat-send-btn">
+                                Send 🚀
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- ═══ QUIZ VIEW ═══ -->
+            <section id="view-quiz" class="view hidden">
+                <div class="quiz-header">
+                    <button class="btn btn-ghost btn-sm" onclick="openCourse(currentCourse)">← Back to Course</button>
+                    <h2 class="section-title">🧪 Knowledge Check</h2>
+                    <div class="quiz-options" id="quiz-options-bar">
+                        <label for="quiz-count"
+                            style="font-size:0.85rem;color:var(--text-secondary);font-weight:500;">Questions:</label>
+                        <select class="form-input" id="quiz-count"
+                            style="width:auto;padding:6px 12px;font-size:0.85rem;">
+                            <option value="5" selected>5</option>
+                            <option value="10">10</option>
+                            <option value="15">15</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="quiz-progress-bar">
+                    <div class="progress-track">
+                        <div class="progress-fill" id="quiz-progress-fill"></div>
+                    </div>
+                    <span class="progress-label" id="quiz-progress-text">1/5</span>
+                </div>
+
+                <div id="quiz-container"></div>
+
+                <div class="quiz-nav">
+                    <button class="btn btn-outline" id="quiz-prev-btn" onclick="quizPrev()" disabled>← Previous</button>
+                    <button class="btn btn-primary" id="quiz-next-btn" onclick="quizNext()">Next →</button>
+                </div>
+            </section>
+
+            <!-- ═══ RESULTS VIEW ═══ -->
+            <section id="view-results" class="view hidden">
+                <div id="results-container"></div>
+            </section>
+
+            <!-- ═══ ANALYTICS VIEW ═══ -->
+            <section id="view-analytics" class="view hidden">
+                <div class="section-header">
+                    <div>
+                        <h1 class="page-title">📊 Learning Analytics</h1>
+                        <p class="page-subtitle">Track your progress across all courses</p>
+                    </div>
+                    <button class="btn btn-outline btn-sm" onclick="showView('dashboard')">← Dashboard</button>
+                </div>
+
+                <div class="stats-row" id="analytics-stats"></div>
+
+                <div class="charts-grid">
+                    <div class="glass chart-card">
+                        <h3 class="card-title">Mastery by Course</h3>
+                        <div class="chart-wrap"><canvas id="mastery-chart"></canvas></div>
+                    </div>
+                    <div class="glass chart-card">
+                        <h3 class="card-title">Domain Overview</h3>
+                        <div class="chart-wrap"><canvas id="domain-chart"></canvas></div>
+                    </div>
+                </div>
+
+                <div class="glass" style="margin-top:24px;">
+                    <h3 class="card-title" style="margin-bottom:16px;">Course Mastery Heatmap</h3>
+                    <div class="heatmap-grid" id="mastery-heatmap"></div>
+                </div>
+            </section>
+
+            <!-- ═══ ADMIN VIEW ═══ -->
+            <section id="view-admin" class="view hidden">
+                <div class="section-header">
+                    <div>
+                        <h1 class="page-title">🔧 Admin Panel</h1>
+                        <p class="page-subtitle">Manage courses and study materials</p>
+                    </div>
+                </div>
+
+                <div class="stats-row" id="admin-stats"></div>
+
+                <!-- Upload Card -->
+                <div class="glass upload-card">
+                    <h3 class="card-title">📄 Upload Study Material → Auto-Generate Course</h3>
+                    <p class="card-desc">Upload a PDF, TXT, or MD file. AI will extract structured content, generate
+                        concepts, knowledge graph, and quiz-ready material.</p>
+
+                    <form id="upload-form" onsubmit="handleUpload(event)">
+                        <div class="upload-dropzone" id="upload-zone"
+                            onclick="document.getElementById('upload-file').click()">
+                            <div class="dropzone-icon">📁</div>
+                            <p class="dropzone-text" id="upload-label">Click or drag a file here</p>
+                            <p class="dropzone-hint">Supported: PDF, TXT, MD</p>
+                            <input type="file" id="upload-file" accept=".pdf,.txt,.md" hidden
+                                onchange="updateUploadLabel(this)">
+                        </div>
+
+                        <div class="upload-options">
+                            <div class="form-group">
+                                <label>Education Level</label>
+                                <select class="form-input" id="upload-level">
+                                    <option value="School">School</option>
+                                    <option value="UG" selected>Undergraduate</option>
+                                    <option value="PG">Postgraduate</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Difficulty</label>
+                                <select class="form-input" id="upload-difficulty">
+                                    <option value="1">1 — Basic</option>
+                                    <option value="2">2 — Easy</option>
+                                    <option value="3" selected>3 — Medium</option>
+                                    <option value="4">4 — Hard</option>
+                                    <option value="5">5 — Expert</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-lg btn-block" id="upload-btn">
+                            ⬆️ Upload & Generate Course
+                        </button>
+
+                        <div id="upload-progress" class="upload-progress hidden">
+                            <div class="progress-stages">
+                                <div class="stage" id="stage-extract">📄 Extracting text...</div>
+                                <div class="stage" id="stage-course">🧠 Generating course...</div>
+                                <div class="stage" id="stage-graph">🔗 Building knowledge graph...</div>
+                                <div class="stage" id="stage-save">💾 Saving to database...</div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Generated Courses -->
+                <div class="glass" style="margin-top:24px;">
+                    <h3 class="card-title" style="margin-bottom:16px;">🎓 Generated Courses</h3>
+                    <div id="admin-courses-container"></div>
+                </div>
+
+                <!-- Materials Table -->
+                <div class="glass" style="margin-top:24px;">
+                    <h3 class="card-title" style="margin-bottom:16px;">📋 Uploaded Materials</h3>
+                    <div class="table-wrap">
+                        <table class="data-table" id="materials-table">
+                            <thead>
+                                <tr>
+                                    <th>File</th>
+                                    <th>Course</th>
+                                    <th>Level</th>
+                                    <th>Uploaded</th>
+                                </tr>
+                            </thead>
+                            <tbody id="materials-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toast-container" role="alert" aria-live="polite"></div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+
+</html>
